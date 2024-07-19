@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<robot name="boat_sim" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find boat_simulator)/urdf/boat_sensor.xacro"/>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="125.0"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="6520" ixy="0.0" ixz="0.0"
+               iyy="6770" iyz="0.0" izz="270"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+          <box size="${5} ${25} ${1}" />
+      </geometry>
+      <material name="ChassisRed">
+        <color rgba="0.0 0.0 0.5 1.0"/>
+      </material>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="5.1 25.1 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="base_link">
+    <material value="Gazebo/Red"/>
+  </gazebo>
+
+  <gazebo>
+    <!-- Fake localization plugin -->
+    <plugin name="ground_truth_odometry" filename="libgazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>100.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <topicName>base_pose_ground_truth</topicName>
+      <gaussianNoise>0.5</gaussianNoise>
+      <frameName>map</frameName>-->
+      <!-- initialize odometry for fake localization -->
+      <xyzOffsets>0 0 0</xyzOffsets>
+      <rpyOffsets>0 0 0</rpyOffsets>
+    </plugin>
+  </gazebo>
+
+</robot>

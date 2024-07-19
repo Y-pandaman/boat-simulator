@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="false"/>
+  <arg name="world_name" default="boat_word"/>
+
+  <!-- 初始化实际机器人，具有单线激光雷达 -->
+  <arg name="x_init_pose" default="0"/>
+  <arg name="y_init_pose" default="0"/>
+  <arg name="z_init_pose" default="0"/>
+
+  <!-- 使用自己构建的场景 -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find boat_simulator)/world/simple_city.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/> <!-- Inert - see gazebo_ros_pkgs issue #491 -->
+    <arg name="recording" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder $(find boat_simulator)/urdf/boat.xacro"/>
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_pioneer" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-x $(arg x_init_pose) -y $(arg y_init_pose) -z $(arg z_init_pose) -urdf -param robot_description -model robot_description"/>
+
+  <!-- publish TFs for static links -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 0 0 0 0 map odom 10"/>
+
+</launch>
